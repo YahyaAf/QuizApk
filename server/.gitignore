@@ -1,0 +1,69 @@
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+### VS Code ###
+.vscode/
+
+### Maven ###
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+### Gradle (si utilisé) ###
+.gradle/
+build/
+
+### Java ###
+*.class
+*.jar
+*.war
+*.ear
+*.log
+hs_err_pid*
+replay_pid*
+
+### Spring Boot ###
+application-local.properties
+application-dev.properties
+application-prod.properties
+application-*.yml
+application-*.yaml
+
+### OS ###
+.DS_Store
+Thumbs.db
+
+### Logs ###
+logs/
+*.log
+
+### Temporary files ###
+tmp/
+temp/
+*.tmp
+
+### Environment ###
+.env
+.env.*
+
+### Generated files ###
+bin/

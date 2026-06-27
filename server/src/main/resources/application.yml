@@ -1,0 +1,92 @@
+server:
+  port: 8082
+  error:
+    include-stacktrace: always
+    include-message: always
+spring:
+  application:
+    name: quiz-platform-api
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:quiz_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:abc@06@2003}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    clean-disabled: false
+    validate-on-migrate: false
+    locations: classpath:db/migration
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+        debug: false
+
+
+# Application JWT Configuration
+application:
+  security:
+    jwt:
+      # Secret key (HMAC-SHA256 requires at least 256 bits of key size)
+      secret-key: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+      # 1 hour in milliseconds
+      expiration: 3600000
+      # 7 days in milliseconds
+      refresh-token-expiration: 604800000
+
+# OpenAPI Swagger Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+
+# AI Quiz Generation Configuration (OpenAI)
+ai:
+  openai:
+    api-key: ${OPENAI_API_KEY:}
+    model: gpt-4o-mini
+    enabled: ${OPENAI_ENABLED:false}
+
+# Spring Mail Configuration (SMTP)
+# Configure via environment variables:
+#   MAIL_HOST      = smtp.gmail.com
+#   MAIL_PORT      = 587
+#   MAIL_USERNAME  = yourschool@gmail.com
+#   MAIL_PASSWORD  = your-app-password  (Google App Password)
+#   MAIL_FROM      = yourschool@gmail.com
+#   APP_URL        = http://localhost:3000 (or production URL)
+
+app:
+  mail:
+    from: ${MAIL_FROM:noreply@examplatform.com}
+    enabled: ${MAIL_ENABLED:false}
+  url: ${APP_URL:http://localhost:3000}
