@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@SuppressWarnings("null")
 @Transactional(readOnly = true)
 public class AuthService {
 

@@ -35,6 +35,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
+@SuppressWarnings("null")
 public class SubmissionService {
 
     private final SubmissionRepository submissionRepository;

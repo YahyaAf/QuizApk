@@ -25,6 +25,7 @@ import java.util.List;
 @RequestMapping("/api/results")
 @RequiredArgsConstructor
 @Tag(name = "Results", description = "Exam Scoring and PDF Reports Management")
+@SuppressWarnings("null")
 public class ResultController {
 
     private final ResultService resultService;

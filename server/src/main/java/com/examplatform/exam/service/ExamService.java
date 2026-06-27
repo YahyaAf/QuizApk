@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@SuppressWarnings("null")
 public class ExamService {
 
     private final ExamRepository examRepository;

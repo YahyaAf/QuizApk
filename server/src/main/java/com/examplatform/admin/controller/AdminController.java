@@ -1,7 +1,6 @@
 package com.examplatform.admin.controller;
 
 import com.examplatform.admin.service.AdminService;
-import com.examplatform.audit.entity.AuditLog;
 import com.examplatform.common.dto.ApiResponse;
 import com.examplatform.school.entity.Module;
 import com.examplatform.school.entity.ModuleAssignment;

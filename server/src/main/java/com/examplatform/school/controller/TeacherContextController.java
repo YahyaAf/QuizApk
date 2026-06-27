@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/teacher")
 @RequiredArgsConstructor
 @Tag(name = "Teacher Context", description = "Teacher specific endpoints")
+@SuppressWarnings("null")
 public class TeacherContextController {
 
     private final ModuleAssignmentRepository moduleAssignmentRepository;

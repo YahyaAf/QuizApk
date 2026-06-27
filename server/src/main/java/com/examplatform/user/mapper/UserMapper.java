@@ -1,7 +1,6 @@
 package com.examplatform.user.mapper;
 
 import com.examplatform.user.dto.UserDto;
-import com.examplatform.user.entity.Badge;
 import com.examplatform.user.entity.User;
 import org.springframework.stereotype.Component;
 

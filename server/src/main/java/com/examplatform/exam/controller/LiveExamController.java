@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Controller
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class LiveExamController {
 
     private final SimpMessagingTemplate messagingTemplate;
