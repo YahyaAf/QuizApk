@@ -115,7 +115,7 @@ public class DashboardService {
 
         // Dynamic rank calculation: find student in the leaderboard
         long rank = 0;
-        var fullLeaderboard = leaderboardService.getLeaderboard(100000); // Get large range to find student rank
+        var fullLeaderboard = leaderboardService.getLeaderboard(100000, null, null); // Get large range to find student rank
         for (var entry : fullLeaderboard) {
             if (entry.getStudentId().equals(student.getId())) {
                 rank = entry.getRank();

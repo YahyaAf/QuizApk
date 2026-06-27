@@ -1,4 +1,5 @@
 import { Plus, Edit3, Trash2, Eye, EyeOff, BookOpen, Clock, Users, ChevronRight, FileText } from 'lucide-react';
+import { FaCheckCircle, FaPen } from 'react-icons/fa';
 import type { ExamItem } from './types';
 
 interface ExamListProps {
@@ -51,7 +52,7 @@ export default function ExamList({
             <div className="flex items-center gap-3 mb-2 flex-wrap">
               <span className="font-extrabold text-navy text-base">{exam.title}</span>
               <span className={`badge ${exam.published ? 'badge-green' : 'badge-amber'}`}>
-                {exam.published ? '✅ Publié' : '📝 Brouillon'}
+                {exam.published ? <span style={{display: 'inline-flex', alignItems: 'center', gap: '4px'}}><FaCheckCircle /> Publié</span> : <span style={{display: 'inline-flex', alignItems: 'center', gap: '4px'}}><FaPen /> Brouillon</span>}
               </span>
             </div>
             <div className="flex gap-5 text-muted text-xs font-semibold">

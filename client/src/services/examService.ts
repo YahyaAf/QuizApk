@@ -48,7 +48,7 @@ export const questionService = {
 
 export const aiService = {
   generateFromText: (examId: number, content: string, questionCount: number, questionType: string, pointsPerQuestion: number) =>
-    api.post('/api/ai/generate-quiz', { examId, content, questionCount, questionType, pointsPerQuestion })
+    api.post('/api/ai/generate-quiz', { examId, text: content, questionCount, questionType, pointsPerQuestion })
       .then((r) => r.data.data),
 
   generateFromPdf: (examId: number, file: File, questionCount: number, questionType: string, pointsPerQuestion: number) => {

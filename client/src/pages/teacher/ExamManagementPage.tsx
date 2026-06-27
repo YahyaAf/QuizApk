@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 import { examService } from '../../services/examService';
 import { resultService } from '../../services/resultService';
@@ -8,15 +9,14 @@ import { resultService } from '../../services/resultService';
 import type { ExamItem } from './components/types';
 import ExamList from './components/ExamList';
 import ExamFormModal from './components/ExamFormModal';
-import QuestionManagerPanel from './components/QuestionManagerPanel';
 
 export default function ExamManagementPage() {
   const [exams, setExams] = useState<ExamItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
   
   const [showForm, setShowForm] = useState(false);
   const [editExam, setEditExam] = useState<ExamItem | null>(null);
-  const [activeExam, setActiveExam] = useState<ExamItem | null>(null);
   const [modules, setModules] = useState<{id: number, name: string}[]>([]);
   const [groups, setGroups] = useState<{id: number, name: string}[]>([]);
 
@@ -123,7 +123,7 @@ export default function ExamManagementPage() {
         loading={loading}
         onOpenCreate={handleOpenCreate}
         onOpenEdit={handleOpenEdit}
-        onOpenQuestions={(exam) => setActiveExam(exam)}
+        onOpenQuestions={(exam) => navigate(`/teacher/exams/${exam.id}/questions`)}
         onPublish={handlePublish}
         onDelete={handleDelete}
         onExportPdf={handleExportPdf}
@@ -136,11 +136,6 @@ export default function ExamManagementPage() {
         onSave={handleSaveExam}
         modules={modules}
         groups={groups}
-      />
-
-      <QuestionManagerPanel 
-        exam={activeExam}
-        onClose={() => setActiveExam(null)}
       />
     </div>
   );

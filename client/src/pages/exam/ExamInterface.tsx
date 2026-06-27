@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Clock, CheckCircle2, ChevronRight, ChevronLeft, AlertTriangle, X, ShieldAlert, Eye } from 'lucide-react';
+import { FaBan, FaHourglassHalf, FaCheck } from 'react-icons/fa';
 import { submissionService } from '../../services/submissionService';
 import { examService, questionService } from '../../services/examService';
 import toast from 'react-hot-toast';
@@ -42,7 +43,7 @@ export default function ExamInterface() {
         
         // Calculate remaining time
         const durationSeconds = (examData.durationMinutes || 90) * 60;
-        const key = `exam_start_time_${_examId}`;
+        const key = `exam_start_time_sub_${submission.id}`;
         let startTime = localStorage.getItem(key);
         if (!startTime) {
           startTime = Date.now().toString();
@@ -94,7 +95,7 @@ export default function ExamInterface() {
       setSubmitted(true); 
       setShowConfirm(false); 
       toast.success('Examen soumis avec succès !'); 
-      localStorage.removeItem(`exam_start_time_${_examId}`); // Clear timer
+      localStorage.removeItem(`exam_start_time_sub_${submissionId}`); // Clear timer
     } catch (err: any) {
       toast.error(err?.response?.data?.message || 'Erreur lors de la soumission de l\'examen');
     }
@@ -104,7 +105,7 @@ export default function ExamInterface() {
   useEffect(() => {
     if (violations === 0) return;
     if (violations >= MAX_VIOLATIONS) {
-      toast.error(`⛔ Trop de violations détectées ! Examen soumis automatiquement.`, { duration: 6000 });
+      toast.error(<span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><FaBan /> Trop de violations détectées ! Examen soumis automatiquement.</span>, { duration: 6000 });
       doSubmit();
       setShowWarningModal(false);
     } else {
@@ -116,7 +117,8 @@ export default function ExamInterface() {
   useEffect(() => {
     const handleVisibility = () => {
       if (document.hidden && !submitted) {
-        addViolation('TAB_SWITCH', 'Changement d\'onglet ou fenêtre minimisée détecté !');
+        toast.error('Vous avez quitté la page ! L\'examen a été soumis automatiquement.', { duration: 5000 });
+        doSubmit();
       }
     };
     const handleBlur = () => {
@@ -178,9 +180,10 @@ export default function ExamInterface() {
       return;
     }
     if (submitted) return;
-    if (timeLeft === 300) toast('⏳ Plus que 5 minutes !', { icon: '⚠️' });
+    if (timeLeft === 300) toast('Plus que 5 minutes !', { icon: <FaHourglassHalf color="orange" /> });
     
-    const key = `exam_start_time_${_examId}`;
+    if (!submissionId) return;
+    const key = `exam_start_time_sub_${submissionId}`;
     const durationSeconds = (examInfo?.durationMinutes || 90) * 60;
     const t = setInterval(() => {
       const startTime = localStorage.getItem(key);
@@ -192,7 +195,7 @@ export default function ExamInterface() {
       }
     }, 1000);
     return () => clearInterval(t);
-  }, [timeLeft, submitted, _examId, loading, examInfo, doSubmit]);
+  }, [timeLeft, submitted, _examId, loading, examInfo, doSubmit, submissionId]);
 
   const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 
@@ -290,7 +293,15 @@ export default function ExamInterface() {
       {/* Header */}
       <div className="card" style={{ padding: '14px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <button onClick={() => navigate('/exams')} style={{ width: 38, height: 38, borderRadius: 10, border: '1.5px solid #DDE8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B9AB8', background: '#fff', cursor: 'pointer', transition: 'all 0.15s' }}>
+          <button onClick={() => {
+            if (!submitted) {
+              toast.error('Examen quitté. Soumission automatique.', { duration: 3000 });
+              doSubmit();
+              setTimeout(() => navigate('/exams'), 1500);
+            } else {
+              navigate('/exams');
+            }
+          }} style={{ width: 38, height: 38, borderRadius: 10, border: '1.5px solid #DDE8F0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6B9AB8', background: '#fff', cursor: 'pointer', transition: 'all 0.15s' }}>
             <X size={18} />
           </button>
           <div>
@@ -439,7 +450,7 @@ export default function ExamInterface() {
             </button>
             {isLast ? (
               <button onClick={() => setShowConfirm(true)} className="btn btn-accent" style={{ padding: '11px 28px' }}>
-                Soumettre l'examen ✓
+                Soumettre l'examen <FaCheck style={{ display: 'inline', marginLeft: '4px' }} />
               </button>
             ) : (
               <button onClick={() => setCurrentIdx((p) => Math.min(total - 1, p + 1))} className="btn btn-primary" style={{ padding: '11px 22px' }}>

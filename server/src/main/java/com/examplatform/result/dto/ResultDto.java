@@ -27,4 +27,5 @@ public class ResultDto {
     private boolean pendingManualGrade;
     private boolean manuallyGraded;
     private Integer textAnswerCount;
+    private Long durationSeconds;
 }

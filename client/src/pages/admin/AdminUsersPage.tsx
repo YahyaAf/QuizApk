@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Users, Plus, Search, Ban, Trash2, Shield, ChevronDown, Edit2, AlertCircle, X, Save } from 'lucide-react';
+import { FaLock, FaCheckCircle } from 'react-icons/fa';
 import { userService } from '../../services/dashboardService';
 import { adminUserService, adminGroupService } from '../../services/adminService';
 import toast from 'react-hot-toast';
@@ -199,7 +200,7 @@ export default function AdminUsersPage() {
                     </select>
                     <ChevronDown size={11} style={{ position: 'absolute', right: 7, top: '50%', transform: 'translateY(-50%)', color: '#6B9AB8', pointerEvents: 'none' }} />
                   </div>
-                  <span className={`badge ${user.blocked ? 'badge-red' : 'badge-green'}`}>{user.blocked ? '🔒 Bloqué' : '✅ Actif'}</span>
+                  <span className={`badge ${user.blocked ? 'badge-red' : 'badge-green'}`}>{user.blocked ? <span style={{display: 'inline-flex', alignItems: 'center', gap: '4px'}}><FaLock /> Bloqué</span> : <span style={{display: 'inline-flex', alignItems: 'center', gap: '4px'}}><FaCheckCircle /> Actif</span>}</span>
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button onClick={() => openEdit(user)} disabled={isLoading} title="Modifier"
                       style={{ width: 30, height: 30, borderRadius: 8, border: '1.5px solid #DDE8F0', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#429EBD' }}>

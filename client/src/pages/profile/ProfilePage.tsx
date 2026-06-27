@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { User, Lock, Award, Camera, CheckCircle2, Shield } from 'lucide-react';
+import { FaBullseye, FaStar, FaFire, FaTrophy, FaBolt, FaMedal } from 'react-icons/fa';
 import { useAuthStore, getRoleLabel } from '../../store/authStore';
 import { userService } from '../../services/dashboardService';
 import toast from 'react-hot-toast';
 
-const BADGE_ICONS: Record<string, string> = {
-  'first_exam': '🎯',
-  'perfect_score': '⭐',
-  'streak_7': '🔥',
-  'top_student': '🏆',
-  'fast_solver': '⚡',
+const BADGE_ICONS: Record<string, React.ReactNode> = {
+  'first_exam': <FaBullseye color="#E53E3E" />,
+  'perfect_score': <FaStar color="#D69E2E" />,
+  'streak_7': <FaFire color="#DD6B20" />,
+  'top_student': <FaTrophy color="#D69E2E" />,
+  'fast_solver': <FaBolt color="#3182CE" />,
 };
 
 export default function ProfilePage() {
@@ -61,11 +62,15 @@ export default function ProfilePage() {
 
   const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`.toUpperCase();
 
-  const tabs = [
-    { key: 'profile' as const,  label: 'Mon profil',         icon: User },
-    { key: 'password' as const, label: 'Mot de passe',       icon: Lock },
-    { key: 'badges' as const,   label: `Badges (${user?.badges?.length ?? 0})`, icon: Award },
+  type TabKey = 'profile' | 'password' | 'badges';
+  const tabs: { key: TabKey; label: string; icon: any }[] = [
+    { key: 'profile',  label: 'Mon profil',         icon: User },
+    { key: 'password', label: 'Mot de passe',       icon: Lock },
   ];
+
+  if (user?.role === 'ROLE_STUDENT') {
+    tabs.push({ key: 'badges', label: `Badges (${user?.badges?.length ?? 0})`, icon: Award });
+  }
 
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: 24, width: '100%' }}>
@@ -104,7 +109,7 @@ export default function ProfilePage() {
             <span className="badge badge-navy">
               <Shield size={10} /> {getRoleLabel(user?.role)}
             </span>
-            {(user?.badges?.length ?? 0) > 0 && (
+            {user?.role === 'ROLE_STUDENT' && (user?.badges?.length ?? 0) > 0 && (
               <span className="badge badge-amber">
                 <Award size={10} /> {user?.badges?.length} badges
               </span>
@@ -206,7 +211,7 @@ export default function ProfilePage() {
                 {user?.badges?.map((badge) => (
                   <div key={badge.id} className="card" style={{ padding: 20, textAlign: 'center' }}>
                     <div style={{ fontSize: 36, marginBottom: 8 }}>
-                      {BADGE_ICONS[badge.name] ?? '🏅'}
+                      {BADGE_ICONS[badge.name] ?? <FaMedal color="#718096" />}
                     </div>
                     <div style={{ fontWeight: 800, color: '#053F5C', fontSize: 14, marginBottom: 4 }}>{badge.name}</div>
                     <div style={{ color: '#6B9AB8', fontSize: 12 }}>{badge.description}</div>

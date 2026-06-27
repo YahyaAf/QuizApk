@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Clock, ArrowRight, PlayCircle, BookOpen, Target, Flame, ChevronRight, Calendar as CalendarIcon, CheckCircle2, RotateCcw } from 'lucide-react';
+import { Clock, ArrowRight, BookOpen, Target, Flame, ChevronRight, Calendar as CalendarIcon, RotateCcw, Smile, PlayCircle, CheckCircle2 } from 'lucide-react';
+import { FaSmileWink, FaLightbulb } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { examService } from '../../services/examService';
@@ -27,7 +28,15 @@ export default function StudentDashboard() {
         
         setDashboardData(dashData);
         const examsList = examsData?.content || examsData || [];
-        setUpcoming(examsList.slice(0, 3));
+        const activeExams = examsList.filter((e: any) => {
+          const now = new Date();
+          const start = new Date(e.availableFrom);
+          const end = new Date(e.availableUntil);
+          const attempts = (resultsData?.content || resultsData || []).filter((r: any) => r.examId === e.id).length;
+          const maxAttempts = e.maxAttempts || 1;
+          return now >= start && now <= end && attempts < maxAttempts;
+        });
+        setUpcoming(activeExams.slice(0, 3));
         
         const resList = resultsData?.content || resultsData || [];
         setResultsList(resList);
@@ -72,7 +81,7 @@ export default function StudentDashboard() {
             {new Date().toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}
           </div>
           <h1 className="font-display" style={{ color:'#fff', fontSize:28, fontWeight:900, marginBottom:8, lineHeight:1.2 }}>
-            Bonjour, {user?.name?.split(' ')[0] ?? 'Étudiant'} ! 👋
+            Bonjour, {user?.name?.split(' ')[0] ?? 'Étudiant'} ! <FaSmileWink style={{ display: 'inline', marginLeft: '4px' }} />
           </h1>
           <p style={{ color:'rgba(255,255,255,0.65)', fontSize:14 }}>
             Prêt à relever de nouveaux défis ? Vous avez <strong style={{ color:'#fff' }}>{upcoming.length} examen{upcoming.length > 1 ? 's' : ''}</strong> prévus.
@@ -92,7 +101,7 @@ export default function StudentDashboard() {
           onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background='#D9930F'; (e.currentTarget as HTMLButtonElement).style.color='#fff'; }}
           onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background='#F7AD19'; (e.currentTarget as HTMLButtonElement).style.color='#053F5C'; }}
         >
-          Ouvrir le calendrier <ArrowRight size={16} />
+          Voir tous mes examens <ArrowRight size={16} />
         </button>
       </div>
 
@@ -118,8 +127,8 @@ export default function StudentDashboard() {
           <div className="card" style={{ padding:24, flex:1 }}>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20 }}>
               <div>
-                <h2 className="font-display" style={{ fontSize:18, fontWeight:800, color:'#053F5C' }}>Examens à venir</h2>
-                <p style={{ fontSize:13, color:'#6B9AB8', marginTop:2 }}>Vos prochains devoirs et évaluations</p>
+                <h2 className="font-display" style={{ fontSize:18, fontWeight:800, color:'#053F5C' }}>Examens disponibles</h2>
+                <p style={{ fontSize:13, color:'#6B9AB8', marginTop:2 }}>Les évaluations que vous pouvez passer maintenant</p>
               </div>
               <button onClick={() => navigate('/exams')} style={{
                 display:'flex', alignItems:'center', gap:4,
@@ -163,7 +172,6 @@ export default function StudentDashboard() {
                       <div style={{ minWidth:0 }}>
                         <div style={{ fontWeight:800, color:'#053F5C', fontSize:15, marginBottom:4, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', display:'flex', alignItems:'center', gap:8 }}>
                           {exam.title}
-                          {isDevalidated && <span style={{ background:'#FEE2E2', color:'#991B1B', fontSize:10, fontWeight:800, padding:'2px 8px', borderRadius:999, textTransform:'uppercase' }}>Dévalidé</span>}
                           {!isDevalidated && isDisabled && <span style={{ background:'#F3F4F6', color:'#4B5563', fontSize:10, fontWeight:800, padding:'2px 8px', borderRadius:999, textTransform:'uppercase' }}>Désactivé</span>}
                         </div>
                         <div style={{ color:'#6B9AB8', fontSize:13, fontWeight:600, marginBottom:8 }}>{exam.moduleName} · {exam.createdByTeacherName}</div>
@@ -191,12 +199,12 @@ export default function StudentDashboard() {
                         padding:'10px 20px', 
                         opacity: (isDevalidated || isDisabled) ? 0.6 : 1, 
                         cursor: (isDevalidated || isDisabled) ? 'not-allowed' : 'pointer',
-                        background: isDevalidated ? '#EF4444' : (isDisabled ? '#9CA3AF' : '#F7AD19'),
-                        borderColor: isDevalidated ? '#EF4444' : (isDisabled ? '#9CA3AF' : '#F7AD19'),
+                        background: (isDevalidated || isDisabled) ? '#9CA3AF' : '#F7AD19',
+                        borderColor: (isDevalidated || isDisabled) ? '#9CA3AF' : '#F7AD19',
                         color: (isDevalidated || isDisabled) ? '#fff' : '#053F5C'
                       }}
                     >
-                      <PlayCircle size={16} /> {isDevalidated ? 'Dévalidé' : (isDisabled ? 'Désactivé' : 'Démarrer')}
+                      <PlayCircle size={16} /> {isDisabled && !isDevalidated ? 'Désactivé' : 'Démarrer'}
                     </button>
                   </div>
                 );
@@ -220,7 +228,7 @@ export default function StudentDashboard() {
                 width:40, height:40, borderRadius:10, background:'#F7AD19', 
                 display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 
               }}>
-                <span style={{ fontSize:20 }}>💡</span>
+                <FaLightbulb size={20} color="#FFF" />
               </div>
               <div>
                 <div style={{ fontSize:11, fontWeight:900, color:'#8C5D07', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 }}>

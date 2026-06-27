@@ -62,6 +62,13 @@ public class UserController {
         return ApiResponse.success(userService.getAllUsers(pageable), "Users list retrieved successfully");
     }
 
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Get a user by ID (Admin only)")
+    public ApiResponse<UserDto> getUserById(@PathVariable Long id) {
+        return ApiResponse.success(userService.getUserById(id), "User retrieved successfully");
+    }
+
     @PutMapping("/{id}/block")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Block a user (Admin only)")

@@ -130,7 +130,7 @@ public class QuestionService {
         }
 
         // For Teacher/Admin, return full data
-        validateExamModification(exam, email);
+        validateExamAccess(exam, email);
         return questionRepository.findByExamIdWithChoices(examId).stream()
                 .map(questionMapper::toDto)
                 .collect(Collectors.toList());
@@ -138,13 +138,17 @@ public class QuestionService {
 
     // Helpers
 
-    private void validateExamModification(Exam exam, String email) {
+    private void validateExamAccess(Exam exam, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (user.getRole() != Role.ROLE_ADMIN && !exam.getCreatedBy().getEmail().equals(email)) {
-            throw new AccessDeniedException("You do not have permission to modify questions for this exam");
+            throw new AccessDeniedException("You do not have permission to access questions for this exam");
         }
+    }
+
+    private void validateExamModification(Exam exam, String email) {
+        validateExamAccess(exam, email);
 
         if (exam.isPublished()) {
             throw new BadRequestException("Cannot modify questions on a published exam. Please unpublish it first.");

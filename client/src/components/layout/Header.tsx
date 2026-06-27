@@ -1,4 +1,4 @@
-import { Bell, Search, User, ChevronDown, LogOut } from 'lucide-react';
+import { User, ChevronDown, LogOut } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useState, useEffect, useRef } from 'react';
 
@@ -15,44 +15,8 @@ export default function Header() {
 
   return (
     <header className="app-header">
-      {/* Search */}
-      <div style={{ position:'relative', width:260 }}>
-        <Search size={15} style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'#6B9AB8' }} />
-        <input
-          type="text"
-          placeholder="Rechercher un examen..."
-          style={{
-            width:'100%', paddingLeft:36, paddingRight:14,
-            paddingTop:8, paddingBottom:8,
-            background:'#F0F4F8', border:'1.5px solid #DDE8F0',
-            borderRadius:10, fontSize:13.5, fontWeight:500,
-            fontFamily:'inherit', color:'#053F5C', outline:'none',
-            transition:'border-color 0.15s'
-          }}
-          onFocus={e => { e.target.style.borderColor='#429EBD'; e.target.style.boxShadow='0 0 0 3px rgba(66,158,189,0.14)'; }}
-          onBlur={e => { e.target.style.borderColor='#DDE8F0'; e.target.style.boxShadow='none'; }}
-        />
-      </div>
 
       <div style={{ display:'flex', alignItems:'center', gap:8, marginLeft:'auto' }}>
-        {/* Notifications */}
-        <button style={{
-          width:38, height:38, borderRadius:10, display:'flex', alignItems:'center',
-          justifyContent:'center', background:'none', border:'none', cursor:'pointer',
-          color:'#6B9AB8', position:'relative', transition:'all 0.15s'
-        }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background='#EBF5FB'; (e.currentTarget as HTMLButtonElement).style.color='#429EBD'; }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background='none'; (e.currentTarget as HTMLButtonElement).style.color='#6B9AB8'; }}
-        >
-          <Bell size={18} />
-          <span style={{
-            position:'absolute', top:8, right:8, width:8, height:8,
-            background:'#F7AD19', borderRadius:'50%', border:'2px solid #fff'
-          }} />
-        </button>
-
-        {/* Divider */}
-        <div style={{ width:1, height:28, background:'#DDE8F0', margin:'0 4px' }} />
 
         {/* Profile */}
         <div style={{ position:'relative' }} ref={menuRef}>

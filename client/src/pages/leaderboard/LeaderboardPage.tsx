@@ -21,24 +21,62 @@ const MEDAL: Record<number, { icon: typeof Trophy; color: string; bg: string }> 
 export default function LeaderboardPage() {
   const [leaders, setLeaders] = useState<LeaderEntry[]>([]);
   const [loading, setLoading] = useState(false);
+  const [year, setYear] = useState<number>(0);
+  const [month, setMonth] = useState<number>(0);
+  
   const currentUser = useAuthStore((s) => s.user);
 
   useEffect(() => {
     setLoading(true);
-    dashboardService.getLeaderboard(10)
-      .then((data) => { if (data?.length) setLeaders(data); })
+    dashboardService.getLeaderboard(10, year || undefined, month || undefined)
+      .then((data) => { setLeaders(data || []); })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [year, month]);
 
   const top3 = leaders.slice(0, 3);
   const rest  = leaders.slice(3);
 
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: 24, width: '100%' }}>
-      <div>
-        <h1 className="page-title font-display">Classement</h1>
-        <p className="page-sub">Les meilleurs étudiants de la plateforme ce mois-ci.</p>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+        <div>
+          <h1 className="page-title font-display">Classement</h1>
+          <p className="page-sub">Les meilleurs étudiants de la plateforme.</p>
+        </div>
+        
+        <div style={{ display: 'flex', gap: 12 }}>
+          <select 
+            value={year} 
+            onChange={(e) => setYear(Number(e.target.value))}
+            style={{ padding: '8px 12px', borderRadius: 10, border: '1px solid #DDE8F0', color: '#053F5C', outline: 'none', background: '#fff' }}
+          >
+            <option value={0}>Toutes les années</option>
+            <option value={2026}>2026</option>
+            <option value={2025}>2025</option>
+            <option value={2024}>2024</option>
+          </select>
+
+          <select 
+            value={month} 
+            onChange={(e) => setMonth(Number(e.target.value))}
+            style={{ padding: '8px 12px', borderRadius: 10, border: '1px solid #DDE8F0', color: '#053F5C', outline: 'none', background: '#fff' }}
+          >
+            <option value={0}>Tous les mois</option>
+            <option value={1}>Janvier</option>
+            <option value={2}>Février</option>
+            <option value={3}>Mars</option>
+            <option value={4}>Avril</option>
+            <option value={5}>Mai</option>
+            <option value={6}>Juin</option>
+            <option value={7}>Juillet</option>
+            <option value={8}>Août</option>
+            <option value={9}>Septembre</option>
+            <option value={10}>Octobre</option>
+            <option value={11}>Novembre</option>
+            <option value={12}>Décembre</option>
+          </select>
+        </div>
       </div>
 
       {loading ? (
@@ -106,12 +144,13 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Rest of ranking */}
-          <div className="card" style={{ overflow: 'hidden' }}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid #EBF2F8', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <TrendingUp size={18} color="#053F5C" />
-              <span style={{ fontWeight: 800, color: '#053F5C', fontSize: 15 }}>Classement complet</span>
-            </div>
-            {rest.map((entry) => {
+          {(!year || !month) && rest.length > 0 && (
+            <div className="card" style={{ overflow: 'hidden' }}>
+              <div style={{ padding: '20px 24px', borderBottom: '1px solid #EBF2F8', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <TrendingUp size={18} color="#053F5C" />
+                <span style={{ fontWeight: 800, color: '#053F5C', fontSize: 15 }}>Classement complet</span>
+              </div>
+              {rest.map((entry) => {
               const isMe = entry.studentEmail === currentUser?.email;
               return (
                 <div key={entry.rank} className="table-row" style={{
@@ -158,6 +197,7 @@ export default function LeaderboardPage() {
               );
             })}
           </div>
+          )}
         </>
       )}
     </div>

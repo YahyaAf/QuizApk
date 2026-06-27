@@ -36,7 +36,7 @@ public interface ResultRepository extends JpaRepository<Result, Long> {
            "COUNT(r) as examsTaken " +
            "FROM Result r " +
            "GROUP BY r.submission.student.id, r.submission.student.firstName, r.submission.student.lastName, r.submission.student.email " +
-           "ORDER BY SUM(r.score) DESC")
+           "ORDER BY AVG(r.percentage) DESC, COUNT(r) DESC")
     List<Object[]> getLeaderboardData(Pageable pageable);
 
     @Query("SELECT COUNT(r) FROM Result r WHERE r.pendingManualGrade = true AND r.submission.exam.createdBy.id = :teacherId")
@@ -51,4 +51,7 @@ public interface ResultRepository extends JpaRepository<Result, Long> {
 
     @Query("SELECT r FROM Result r WHERE r.pendingManualGrade = true AND r.submission.exam.createdBy.id = :teacherId ORDER BY r.createdAt ASC")
     List<Result> findPendingManualGradeByTeacherId(@Param("teacherId") Long teacherId);
+
+    @Query("SELECT r FROM Result r WHERE EXTRACT(YEAR FROM r.createdAt) = :year AND EXTRACT(MONTH FROM r.createdAt) = :month")
+    List<Result> findByYearAndMonth(@Param("year") int year, @Param("month") int month);
 }

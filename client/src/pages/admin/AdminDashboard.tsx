@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Users, FileText, CheckCircle2, Activity, Ban, Trash2, Shield, Search, ChevronDown, AlertCircle } from 'lucide-react';
+import { FaLock, FaCheckCircle } from 'react-icons/fa';
 import { userService } from '../../services/dashboardService';
 import { dashboardService } from '../../services/dashboardService';
 import toast from 'react-hot-toast';
@@ -225,7 +226,7 @@ export default function AdminDashboard() {
 
                   {/* Status */}
                   <span className={`badge ${user.blocked ? 'badge-red' : 'badge-green'}`}>
-                    {user.blocked ? '🔒 Bloqué' : '✅ Actif'}
+                    {user.blocked ? <span style={{display: 'inline-flex', alignItems: 'center', gap: '4px'}}><FaLock /> Bloqué</span> : <span style={{display: 'inline-flex', alignItems: 'center', gap: '4px'}}><FaCheckCircle /> Actif</span>}
                   </span>
 
                   {/* Actions */}

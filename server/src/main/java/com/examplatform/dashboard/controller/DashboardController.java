@@ -51,7 +51,10 @@ public class DashboardController {
 
     @GetMapping("/leaderboard")
     @Operation(summary = "Get global student leaderboard rankings")
-    public ApiResponse<List<LeaderboardDto>> getLeaderboard(@RequestParam(defaultValue = "10") int limit) {
-        return ApiResponse.success(leaderboardService.getLeaderboard(limit), "Global leaderboard retrieved");
+    public ApiResponse<List<LeaderboardDto>> getLeaderboard(
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month) {
+        return ApiResponse.success(leaderboardService.getLeaderboard(limit, year, month), "Global leaderboard retrieved");
     }
 }

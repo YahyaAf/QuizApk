@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { PenSquare, CheckCircle2, Clock, User, ChevronRight, ChevronLeft, AlertCircle, Star } from 'lucide-react';
+import { FaMagic } from 'react-icons/fa';
 import { manualGradingService } from '../../services/manualGradingService';
 import type { PendingGradingDto, TextAnswerDto } from '../../services/manualGradingService';
 import toast from 'react-hot-toast';
@@ -102,7 +103,7 @@ export default function ManualGradingPage() {
           ) : pending.length === 0 ? (
             <div style={{ padding: 40, textAlign: 'center' }}>
               <CheckCircle2 size={40} color="#86EFAC" style={{ margin: '0 auto 12px' }} />
-              <p style={{ color: '#16A34A', fontWeight: 700, fontSize: 13 }}>Tout est corrigé ! ✨</p>
+              <p style={{ color: '#16A34A', fontWeight: 700, fontSize: 13 }}>Tout est corrigé ! <FaMagic style={{ display: 'inline', marginLeft: '4px' }} /></p>
             </div>
           ) : (
             <div>

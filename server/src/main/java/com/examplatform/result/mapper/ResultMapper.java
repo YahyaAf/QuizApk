@@ -18,6 +18,11 @@ public class ResultMapper {
                 .filter(q -> q.getType() == QuestionType.TEXT)
                 .count();
 
+        Long durationSeconds = null;
+        if (result.getSubmission().getStartTime() != null && result.getSubmission().getSubmitTime() != null) {
+            durationSeconds = java.time.Duration.between(result.getSubmission().getStartTime(), result.getSubmission().getSubmitTime()).getSeconds();
+        }
+
         return ResultDto.builder()
                 .id(result.getId())
                 .submissionId(result.getSubmission().getId())
@@ -35,6 +40,7 @@ public class ResultMapper {
                 .pendingManualGrade(result.isPendingManualGrade())
                 .manuallyGraded(result.isManuallyGraded())
                 .textAnswerCount(textAnswerCount)
+                .durationSeconds(durationSeconds)
                 .build();
     }
 }

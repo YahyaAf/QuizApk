@@ -10,8 +10,8 @@ export const dashboardService = {
   getAdminDashboard: () =>
     api.get('/api/dashboard/admin').then((r) => r.data.data),
 
-  getLeaderboard: (limit = 10) =>
-    api.get('/api/dashboard/leaderboard', { params: { limit } }).then((r) => r.data.data),
+  getLeaderboard: (limit = 10, year?: number, month?: number) =>
+    api.get('/api/dashboard/leaderboard', { params: { limit, year, month } }).then((r) => r.data.data),
 };
 
 export const userService = {

@@ -62,6 +62,23 @@ public class SubmissionService {
             throw new BadRequestException("This exam is not available at the moment");
         }
 
+        // Check if there is an ongoing unsubmitted attempt
+        java.util.List<Submission> existingSubmissions = submissionRepository.findByStudentEmailOrderByStartTimeDesc(email);
+        java.util.Optional<Submission> activeSubmission = existingSubmissions.stream()
+                .filter(s -> s.getExam().getId().equals(examId) && s.getSubmitTime() == null)
+                .findFirst();
+
+        if (activeSubmission.isPresent()) {
+            Submission abandoned = activeSubmission.get();
+            // Grace period of 10 seconds to allow React StrictMode double-fetches
+            if (abandoned.getStartTime().plusSeconds(10).isAfter(now)) {
+                return submissionMapper.toDto(abandoned);
+            }
+            
+            log.info("Student {} abandoned submission {}. Auto-submitting to consume the attempt.", email, abandoned.getId());
+            autoSubmit(abandoned);
+        }
+
         long attempts = submissionRepository.countByStudentIdAndExamId(student.getId(), exam.getId());
         if (attempts >= exam.getMaxAttempts()) {
             throw new BadRequestException("You have reached the maximum number of attempts (" + exam.getMaxAttempts() + ") for this exam");

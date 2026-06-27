@@ -162,6 +162,9 @@ public class AiService {
                         new ChoiceDto(null, "Cette affirmation est incorrecte", false),
                         new ChoiceDto(null, "Cette affirmation est hors sujet", false)
                 ));
+            } else if ("TEXT".equals(type)) {
+                q.setType(QuestionType.TEXT);
+                q.setChoices(new ArrayList<>());
             } else {
                 q.setType(QuestionType.SINGLE_CHOICE);
                 q.setChoices(List.of(
@@ -180,6 +183,7 @@ public class AiService {
         String typeDesc = switch (type) {
             case "TRUE_FALSE" -> "Vrai/Faux (2 choix uniquement: Vrai et Faux, un seul correct)";
             case "MULTIPLE_CHOICE" -> "QCM à réponses multiples (4 choix, 2+ corrects)";
+            case "TEXT" -> "Question ouverte (aucun choix, tu DOIS renvoyer un tableau choices vide [])";
             default -> "QCM à réponse unique (4 choix, 1 seul correct)";
         };
 
@@ -195,10 +199,11 @@ public class AiService {
               "questions": [
                 {
                   "statement": "Énoncé de la question",
-                  "explanation": "Explication de la bonne réponse",
+                  "explanation": "Explication de la réponse attendue",
                   "choices": [
-                    {"label": "Texte choix", "isCorrect": true},
-                    {"label": "Texte choix", "isCorrect": false}
+                    // Pour le type TEXT: le tableau doit être obligatoirement vide [].
+                    // Sinon, renvoie les choix comme ceci:
+                    // {"label": "Texte choix", "isCorrect": true}
                   ]
                 }
               ]
