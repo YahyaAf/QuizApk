@@ -35,19 +35,19 @@ public class AiService {
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
 
-    @Value("${ai.openai.api-key:}")
-    private String openAiApiKey;
+    // Google Gemini (free tier: 1500 requests/day)
+    @Value("${ai.gemini.api-key:}")
+    private String geminiApiKey;
 
-    @Value("${ai.openai.model:gpt-4o-mini}")
-    private String openAiModel;
+    @Value("${ai.gemini.model:gemini-1.5-flash}")
+    private String geminiModel;
 
-    @Value("${ai.openai.enabled:false}")
-    private boolean openAiEnabled;
+    @Value("${ai.gemini.enabled:false}")
+    private boolean geminiEnabled;
 
-    /**
-     * Generates quiz questions from a provided text using either OpenAI (if configured)
-     * or a built-in template-based generator as a fallback.
-     */
+    private static final String GEMINI_API_URL =
+        "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent?key=%s";
+
     public List<QuestionDto> generateQuestionsFromText(AiQuizRequest request, String teacherEmail) {
         Exam exam = examRepository.findById(request.getExamId())
                 .orElseThrow(() -> new ResourceNotFoundException("Exam not found with id: " + request.getExamId()));
@@ -66,11 +66,10 @@ public class AiService {
 
         List<QuestionDto> generatedQuestions;
 
-        if (openAiEnabled && openAiApiKey != null && !openAiApiKey.isEmpty()) {
-            generatedQuestions = generateWithOpenAi(request.getText(), count, type, points);
+        if (geminiEnabled && geminiApiKey != null && !geminiApiKey.isBlank()) {
+            generatedQuestions = generateWithGemini(request.getText(), count, type, points);
         } else {
-            log.info("OpenAI is not enabled/configured. Using template-based generation.");
-            generatedQuestions = generateWithTemplate(request.getText(), count, type, points);
+            throw new BadRequestException("Génération par IA impossible : Gemini n'est pas configuré ou activé.");
         }
 
         // Persist questions
@@ -86,99 +85,54 @@ public class AiService {
     }
 
     /**
-     * Calls OpenAI Chat Completion API to generate questions.
+     * Calls Google Gemini API (free tier) to generate questions.
+     * Gemini 1.5 Flash: 1500 requests/day, 1M tokens/min — completely free.
      */
-    private List<QuestionDto> generateWithOpenAi(String text, int count, String type, int points) {
+    private List<QuestionDto> generateWithGemini(String text, int count, String type, int points) {
         String prompt = buildPrompt(text, count, type);
+        String url = String.format(GEMINI_API_URL, geminiModel, geminiApiKey);
 
-        Map<String, Object> message = Map.of("role", "user", "content", prompt);
+        // Gemini API request body
+        Map<String, Object> part = Map.of("text", prompt);
+        Map<String, Object> content = Map.of("parts", List.of(part));
+        Map<String, Object> generationConfig = Map.of(
+            "temperature", 0.7,
+            "maxOutputTokens", 4096,
+            "responseMimeType", "application/json"
+        );
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("model", openAiModel);
-        body.put("messages", List.of(message));
-        body.put("temperature", 0.7);
-        body.put("max_tokens", 3000);
-        body.put("response_format", Map.of("type", "json_object"));
+        body.put("contents", List.of(content));
+        body.put("generationConfig", generationConfig);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(openAiApiKey);
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
-                    "https://api.openai.com/v1/chat/completions",
+                    url,
                     HttpMethod.POST,
                     new HttpEntity<>(body, headers),
                     String.class
             );
 
-            String content = objectMapper.readTree(response.getBody())
-                    .path("choices").get(0)
-                    .path("message").path("content").asText();
+            JsonNode root = objectMapper.readTree(response.getBody());
+            String jsonText = root.path("candidates")
+                    .get(0)
+                    .path("content")
+                    .path("parts")
+                    .get(0)
+                    .path("text")
+                    .asText();
 
-            return parseQuestionsFromJson(content, type, points);
+            log.info("Gemini generated JSON ({} chars)", jsonText.length());
+            return parseQuestionsFromJson(jsonText, type, points);
+
         } catch (Exception e) {
-            log.error("OpenAI API call failed: {}. Falling back to template generation.", e.getMessage());
-            return generateWithTemplate(text, count, type, points);
+            log.error("Gemini API call failed: {}", e.getMessage(), e);
+            throw new BadRequestException("Erreur de l'API Gemini : " + e.getMessage());
         }
     }
 
-    /**
-     * Template-based fallback generator when OpenAI is not available.
-     * Generates simple questions based on keywords extracted from the text.
-     */
-    private List<QuestionDto> generateWithTemplate(String text, int count, String type, int points) {
-        List<QuestionDto> questions = new ArrayList<>();
-        String[] sentences = text.split("[.!?\\n]+");
-        List<String> validSentences = new ArrayList<>();
-        for (String s : sentences) {
-            String trimmed = s.trim();
-            if (trimmed.length() > 15 && trimmed.split("\\s+").length >= 4) {
-                validSentences.add(trimmed);
-            }
-        }
-
-        int maxQuestions = Math.min(count, validSentences.size());
-        if (maxQuestions == 0) {
-            throw new BadRequestException("Le texte fourni est trop court pour générer des questions. Veuillez fournir un texte plus long et détaillé.");
-        }
-
-        for (int i = 0; i < maxQuestions; i++) {
-            String sentence = validSentences.get(i);
-            QuestionDto q = new QuestionDto();
-            q.setStatement("Concernant le texte fourni, laquelle des affirmations suivantes est correcte ?\n\n\"" + sentence + "\"");
-            q.setPoints(points);
-            q.setExplanation("Réponse générée automatiquement depuis le texte source.");
-
-            if ("TRUE_FALSE".equals(type)) {
-                q.setType(QuestionType.TRUE_FALSE);
-                q.setChoices(List.of(
-                        new ChoiceDto(null, "Vrai", true),
-                        new ChoiceDto(null, "Faux", false)
-                ));
-            } else if ("MULTIPLE_CHOICE".equals(type)) {
-                q.setType(QuestionType.MULTIPLE_CHOICE);
-                q.setChoices(List.of(
-                        new ChoiceDto(null, "Cette affirmation est exacte", true),
-                        new ChoiceDto(null, "Cette affirmation est correcte selon le contexte", true),
-                        new ChoiceDto(null, "Cette affirmation est incorrecte", false),
-                        new ChoiceDto(null, "Cette affirmation est hors sujet", false)
-                ));
-            } else if ("TEXT".equals(type)) {
-                q.setType(QuestionType.TEXT);
-                q.setChoices(new ArrayList<>());
-            } else {
-                q.setType(QuestionType.SINGLE_CHOICE);
-                q.setChoices(List.of(
-                        new ChoiceDto(null, "Cette affirmation est exacte et complète", true),
-                        new ChoiceDto(null, "Cette affirmation est partiellement incorrecte", false),
-                        new ChoiceDto(null, "Cette affirmation est totalement fausse", false),
-                        new ChoiceDto(null, "Cette affirmation est hors contexte", false)
-                ));
-            }
-            questions.add(q);
-        }
-        return questions;
-    }
 
     private String buildPrompt(String text, int count, String type) {
         String typeDesc = switch (type) {

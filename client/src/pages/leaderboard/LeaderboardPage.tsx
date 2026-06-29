@@ -28,7 +28,7 @@ export default function LeaderboardPage() {
 
   useEffect(() => {
     setLoading(true);
-    dashboardService.getLeaderboard(10, year || undefined, month || undefined)
+    dashboardService.getLeaderboard(500, year || undefined, month || undefined)
       .then((data) => { setLeaders(data || []); })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -119,7 +119,7 @@ export default function LeaderboardPage() {
                     </div>
                     <div style={{ textAlign: 'center' }}>
                       <div style={{ color: '#fff', fontWeight: 800, fontSize: isFirst ? 15 : 13 }}>
-                        {entry.studentName.split(' ')[0]}
+                        {entry.studentName.split(' ')[0]} {entry.studentEmail === currentUser?.email && <span style={{ color: '#F7AD19' }}>(moi)</span>}
                       </div>
                       <div style={{ color: '#F7AD19', fontWeight: 900, fontSize: isFirst ? 20 : 16 }}>
                         {((entry.averageScore ?? entry.averagePercentage ?? 0)).toFixed(1)}%
@@ -144,11 +144,11 @@ export default function LeaderboardPage() {
           </div>
 
           {/* Rest of ranking */}
-          {(!year || !month) && rest.length > 0 && (
+          {rest.length > 0 && (
             <div className="card" style={{ overflow: 'hidden' }}>
               <div style={{ padding: '20px 24px', borderBottom: '1px solid #EBF2F8', display: 'flex', alignItems: 'center', gap: 10 }}>
                 <TrendingUp size={18} color="#053F5C" />
-                <span style={{ fontWeight: 800, color: '#053F5C', fontSize: 15 }}>Classement complet</span>
+                <span style={{ fontWeight: 800, color: '#053F5C', fontSize: 15 }}>Classement complet (Tous groupes et modules)</span>
               </div>
               {rest.map((entry) => {
               const isMe = entry.studentEmail === currentUser?.email;
@@ -174,8 +174,7 @@ export default function LeaderboardPage() {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 700, color: '#053F5C', fontSize: 14 }}>
-                      {entry.studentName}
-                      {isMe && <span className="badge badge-amber" style={{ marginLeft: 8 }}>Moi</span>}
+                      {entry.studentName} {isMe && <span style={{ color: '#D9930F', fontWeight: 800 }}>(moi)</span>}
                     </div>
                     <div style={{ color: '#6B9AB8', fontSize: 12, marginTop: 2 }}>
                       {entry.examsTaken} examens passés

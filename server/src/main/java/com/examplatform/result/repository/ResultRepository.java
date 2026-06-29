@@ -28,6 +28,12 @@ public interface ResultRepository extends JpaRepository<Result, Long> {
     @Query("SELECT SUM(r.score) FROM Result r WHERE r.submission.student.id = :studentId")
     Double getTotalScoreByStudentId(@Param("studentId") Long studentId);
 
+    @Query("SELECT r.submission.student.id FROM Result r GROUP BY r.submission.student.id HAVING MIN(r.percentage) = 100")
+    List<Long> findStudentsWithPerfectScoreInAllExams();
+
+    @Query("SELECT r.submission.student.id FROM Result r GROUP BY r.submission.student.id HAVING AVG(r.percentage) > 60.0")
+    List<Long> findStudentsWithAverageOver60();
+
     @Query("SELECT r.submission.student.id as studentId, " +
            "CONCAT(r.submission.student.firstName, ' ', r.submission.student.lastName) as studentName, " +
            "r.submission.student.email as studentEmail, " +

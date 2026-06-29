@@ -6,6 +6,7 @@ CREATE TABLE badges (
     name VARCHAR(255) NOT NULL UNIQUE,
     description VARCHAR(255) NOT NULL,
     icon_url VARCHAR(255),
+    color VARCHAR(255),
     created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL
 );

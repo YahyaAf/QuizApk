@@ -69,12 +69,14 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
 
-# AI Quiz Generation Configuration (OpenAI)
+# AI Quiz Generation — Google Gemini (Free Tier)
+# Get your free API key at: https://aistudio.google.com/app/apikey
+# Free tier: 1500 requests/day, 1M tokens/min, no credit card required
 ai:
-  openai:
-    api-key: ${OPENAI_API_KEY:}
-    model: gpt-4o-mini
-    enabled: ${OPENAI_ENABLED:false}
+  gemini:
+    api-key: ${GEMINI_API_KEY:}
+    model: gemini-1.5-flash
+    enabled: ${GEMINI_ENABLED:true}
 
 # Spring Mail Configuration (SMTP)
 # Configure via environment variables:

@@ -25,6 +25,7 @@ import ProfilePage from './pages/profile/ProfilePage';
 import ExamManagementPage      from './pages/teacher/ExamManagementPage';
 import QuestionManagerPage     from './pages/teacher/QuestionManagerPage';
 import TeacherDashboard        from './pages/teacher/TeacherDashboard';
+import BadgeManagerPage        from './pages/teacher/BadgeManagerPage';
 import ManualGradingPage       from './pages/teacher/ManualGradingPage';
 import TeacherResultsPage      from './pages/teacher/TeacherResultsPage';
 import ExamAnalyticsPage       from './pages/teacher/ExamAnalyticsPage';
@@ -102,6 +103,7 @@ function App() {
             <Route path="/teacher/dashboard"                  element={<TeacherDashboard />} />
             <Route path="/teacher/exams"                      element={<ExamManagementPage />} />
             <Route path="/teacher/exams/:examId/questions"    element={<QuestionManagerPage />} />
+            <Route path="/teacher/badges"                     element={<BadgeManagerPage />} />
             <Route path="/teacher/grading"                    element={<ManualGradingPage />} />
             <Route path="/teacher/results"                    element={<TeacherResultsPage />} />
             <Route path="/teacher/analytics/:examId"          element={<ExamAnalyticsPage />} />

@@ -1,5 +1,8 @@
 import React from 'react';
-import { Save, AlertCircle, CheckCircle2, Circle, CheckSquare, Square, Type, Hash, List, Plus, Trash2 } from 'lucide-react';
+import {
+  Save, AlertCircle, CheckCircle2, Circle, Type, Hash, List,
+  Plus, Trash2, AlignLeft,
+} from 'lucide-react';
 import type { QuestionItem } from './types';
 import { QUESTION_TYPES } from './types';
 
@@ -12,14 +15,18 @@ interface QuestionFormProps {
   onCancel: () => void;
 }
 
+/* ── Lettre de l'option ── */
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
 export default function QuestionForm({
   qForm,
   setQForm,
   editingQIdx,
   savingQ,
   onSave,
-  onCancel
+  onCancel,
 }: QuestionFormProps) {
+
   const setChoice = (idx: number, field: 'label' | 'isCorrect', value: string | boolean) => {
     const choices = [...(qForm.choices ?? [])];
     choices[idx] = { ...choices[idx], [field]: value };
@@ -39,175 +46,350 @@ export default function QuestionForm({
     }
   };
 
+  const isEditing = editingQIdx !== null;
+  const canSave   = (qForm.statement || '').trim().length > 0;
+
   return (
-    <div className="card p-8 border border-border-soft bg-white shadow-lg shadow-sky/5 hover:shadow-xl transition-shadow duration-300 relative overflow-hidden group rounded-2xl">
-      {/* Decorative top accent */}
-      <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-sky via-blue-500 to-navy transform origin-left transition-transform duration-300" />
-      
-      <div className="flex items-center gap-4 mb-8 pb-5 border-b border-border-soft">
-        <div className="w-12 h-12 rounded-xl bg-sky/10 flex items-center justify-center text-sky shadow-inner">
-          {editingQIdx !== null ? <Save size={24} /> : <AlertCircle size={24} />}
+    <div style={{
+      background: '#fff',
+      border: '1px solid #DDE8F0',
+      borderRadius: 20,
+      boxShadow: '0 4px 24px rgba(5,63,92,0.07)',
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+    }}>
+
+      {/* ── Top accent bar ── */}
+      <div style={{
+        height: 4,
+        background: isEditing
+          ? 'linear-gradient(90deg, #F7AD19, #D9930F)'
+          : 'linear-gradient(90deg, #429EBD, #053F5C)',
+      }} />
+
+      {/* ── Header ── */}
+      <div style={{
+        padding: '20px 24px 16px',
+        borderBottom: '1px solid #EBF2F8',
+        display: 'flex', alignItems: 'center', gap: 14,
+      }}>
+        <div style={{
+          width: 44, height: 44, borderRadius: 12,
+          background: isEditing ? '#FEF9EC' : '#EBF5FB',
+          border: `1.5px solid ${isEditing ? '#FBD98A' : '#C3D9E8'}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
+        }}>
+          {isEditing
+            ? <Save size={22} color="#D9930F" />
+            : <AlertCircle size={22} color="#429EBD" />}
         </div>
         <div>
-          <h3 className="font-display font-black text-navy text-2xl">
-            {editingQIdx !== null ? 'Modifier la question' : 'Nouvelle question'}
+          <h3 style={{ fontWeight: 900, color: '#053F5C', fontSize: 18, fontFamily: 'inherit' }}>
+            {isEditing ? 'Modifier la question' : 'Nouvelle question'}
           </h3>
-          <p className="text-muted text-sm font-semibold mt-1">
-            {editingQIdx !== null ? 'Ajustez les détails de votre question' : 'Créez une nouvelle question pour cet examen'}
+          <p style={{ fontSize: 13, color: '#6B9AB8', fontWeight: 600, marginTop: 2 }}>
+            {isEditing ? 'Ajustez les détails de votre question' : 'Créez une nouvelle question pour cet examen'}
           </p>
         </div>
       </div>
-      
-      <div className="flex flex-col gap-8">
-        {/* Question Text */}
-        <div className="space-y-3">
-          <label className="flex items-center gap-2 text-sm font-bold text-navy">
-            <Type size={18} className="text-sky" />
-            Énoncé de la question
+
+      {/* ── Scrollable body ── */}
+      <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 20, overflowY: 'auto', flex: 1 }}>
+
+        {/* Énoncé */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 800, color: '#053F5C' }}>
+            <Type size={15} color="#429EBD" />
+            Énoncé de la question <span style={{ color: '#E11D48', marginLeft: 2 }}>*</span>
           </label>
-          <textarea 
-            className="w-full min-h-[140px] resize-none focus:ring-4 focus:ring-sky/20 focus:border-sky outline-none transition-all text-base leading-relaxed p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white text-navy font-medium shadow-sm"
-            rows={5} 
+          <textarea
+            rows={4}
             value={qForm.statement || ''}
             onChange={(e) => setQForm((p) => ({ ...p, statement: e.target.value }))}
-            placeholder="Rédigez l'énoncé de la question de façon claire et concise..." 
+            placeholder="Rédigez l'énoncé de la question de façon claire et concise..."
+            style={{
+              width: '100%', resize: 'vertical', minHeight: 110,
+              padding: '12px 14px', borderRadius: 12, outline: 'none',
+              border: '2px solid #DDE8F0',
+              background: '#F8FBFD', fontSize: 14, fontFamily: 'inherit',
+              color: '#053F5C', fontWeight: 500, lineHeight: 1.6,
+              transition: 'border-color 0.2s',
+              boxSizing: 'border-box',
+            }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = '#429EBD'; e.currentTarget.style.background = '#fff'; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = '#DDE8F0'; e.currentTarget.style.background = '#F8FBFD'; }}
           />
         </div>
-        
-        {/* Type & Points */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="col-span-2 space-y-3">
-            <label className="flex items-center gap-2 text-sm font-bold text-navy">
-              <List size={18} className="text-sky" />
+
+        {/* Type + Points */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 14 }}>
+          {/* Type */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 800, color: '#053F5C' }}>
+              <List size={15} color="#429EBD" />
               Type de question
             </label>
-            <div className="relative">
-              <select 
-                className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white cursor-pointer appearance-none pr-10 focus:ring-4 focus:ring-sky/20 focus:border-sky transition-all font-semibold text-navy outline-none shadow-sm"
+            <div style={{ position: 'relative' }}>
+              <select
                 value={qForm.type}
-                onChange={(e) => setQForm((p) => ({ ...p, type: e.target.value as QuestionItem['type'] }))}
+                onChange={(e) => {
+                  const newType = e.target.value as QuestionItem['type'];
+                  // Reset choices when switching type
+                  let choices = qForm.choices;
+                  if (newType === 'TRUE_FALSE') {
+                    choices = [{ label: 'Vrai', isCorrect: true }, { label: 'Faux', isCorrect: false }];
+                  } else if (newType === 'TEXT') {
+                    choices = [];
+                  } else if (!choices || choices.length < 2) {
+                    choices = [
+                      { label: '', isCorrect: true },
+                      { label: '', isCorrect: false },
+                      { label: '', isCorrect: false },
+                      { label: '', isCorrect: false },
+                    ];
+                  }
+                  setQForm((p) => ({ ...p, type: newType, choices }));
+                }}
+                style={{
+                  width: '100%', height: 44, paddingLeft: 12, paddingRight: 36,
+                  borderRadius: 10, border: '2px solid #DDE8F0',
+                  background: '#F8FBFD', fontSize: 13.5, fontFamily: 'inherit',
+                  fontWeight: 700, color: '#053F5C', outline: 'none',
+                  appearance: 'none', cursor: 'pointer',
+                  transition: 'border-color 0.2s',
+                }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = '#429EBD'; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = '#DDE8F0'; }}
               >
                 {QUESTION_TYPES.map((t) => (
                   <option key={t.value} value={t.value}>{t.label}</option>
                 ))}
               </select>
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                <svg width="14" height="10" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#6B9AB8' }}>
+                <svg width="12" height="8" viewBox="0 0 12 8" fill="none"><path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </div>
             </div>
           </div>
-          <div className="space-y-3">
-            <label className="flex items-center gap-2 text-sm font-bold text-navy">
-              <Hash size={18} className="text-sky" />
-              Points attribués
+
+          {/* Points */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 800, color: '#053F5C' }}>
+              <Hash size={15} color="#429EBD" />
+              Points
             </label>
-            <input 
-              type="number" 
-              className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white focus:ring-4 focus:ring-sky/20 focus:border-sky transition-all font-bold text-lg text-center text-navy outline-none shadow-sm"
-              min={1} 
+            <input
+              type="number"
+              min={1}
               value={qForm.points || 1}
-              onChange={(e) => setQForm((p) => ({ ...p, points: +e.target.value }))} 
+              onChange={(e) => setQForm((p) => ({ ...p, points: +e.target.value }))}
+              style={{
+                width: 80, height: 44, textAlign: 'center',
+                borderRadius: 10, border: '2px solid #DDE8F0',
+                background: '#F8FBFD', fontSize: 16,
+                fontWeight: 900, color: '#053F5C', outline: 'none',
+                transition: 'border-color 0.2s', fontFamily: 'inherit',
+              }}
+              onFocus={(e) => { e.currentTarget.style.borderColor = '#429EBD'; }}
+              onBlur={(e) => { e.currentTarget.style.borderColor = '#DDE8F0'; }}
             />
           </div>
         </div>
 
-        {/* Choices for MCQ / True-False */}
+        {/* ── QCM choix unique ou multiple ── */}
         {(qForm.type === 'SINGLE_CHOICE' || qForm.type === 'MULTIPLE_CHOICE') && (
-          <div className="bg-slate-50/80 p-6 rounded-2xl border border-slate-200 space-y-5">
-            <div className="flex items-center justify-between">
-              <label className="text-base font-bold text-navy flex items-center gap-2">
-                <CheckCircle2 size={20} className="text-sky" />
-                Choix de réponses
-              </label>
-              <span className="text-xs text-sky-700 font-bold bg-sky-100 px-3 py-1.5 rounded-lg shadow-sm border border-sky-200">
-                Cochez la ou les bonnes réponses
+          <div style={{
+            background: '#F8FBFD', borderRadius: 14,
+            border: '1.5px solid #DDE8F0', padding: '16px 18px',
+            display: 'flex', flexDirection: 'column', gap: 12,
+          }}>
+            {/* Header de la section */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <CheckCircle2 size={16} color="#429EBD" />
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#053F5C' }}>Choix de réponses</span>
+              </div>
+              <span style={{
+                fontSize: 11, fontWeight: 700,
+                background: qForm.type === 'MULTIPLE_CHOICE' ? '#EBF5FB' : '#F0FDF4',
+                color: qForm.type === 'MULTIPLE_CHOICE' ? '#429EBD' : '#16A34A',
+                border: `1px solid ${qForm.type === 'MULTIPLE_CHOICE' ? '#C3D9E8' : '#86EFAC'}`,
+                padding: '3px 10px', borderRadius: 999,
+              }}>
+                {qForm.type === 'MULTIPLE_CHOICE' ? '☑ Plusieurs bonnes réponses possibles' : '◉ Une seule bonne réponse'}
               </span>
             </div>
-            
-            <div className="flex flex-col gap-3">
+
+            {/* Liste des options */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {(qForm.choices ?? []).map((choice, idx) => {
-                const isChecked = choice.isCorrect;
+                const isCorrect = choice.isCorrect;
+                const letter = LETTERS[idx] || String(idx + 1);
+
+                const handleToggle = () => {
+                  if (qForm.type === 'SINGLE_CHOICE') {
+                    const choices = qForm.choices!.map((c, i) => ({ ...c, isCorrect: i === idx }));
+                    setQForm((p) => ({ ...p, choices }));
+                  } else {
+                    setChoice(idx, 'isCorrect', !choice.isCorrect);
+                  }
+                };
+
                 return (
-                  <div 
-                    key={idx} 
-                    className={`flex items-center gap-3 p-2.5 rounded-xl transition-all duration-300 border-2 ${isChecked ? 'bg-sky-50 border-sky-400 shadow-sm' : 'bg-white border-slate-200 hover:border-sky-200 shadow-sm'} group/choice`}
+                  <div
+                    key={idx}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '10px 12px', borderRadius: 12,
+                      background: isCorrect ? '#F0FDF4' : '#fff',
+                      border: `2px solid ${isCorrect ? '#86EFAC' : '#DDE8F0'}`,
+                      transition: 'all 0.18s',
+                      boxShadow: isCorrect ? '0 2px 8px rgba(22,163,74,0.08)' : '0 1px 3px rgba(5,63,92,0.04)',
+                    }}
                   >
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (qForm.type === 'SINGLE_CHOICE') {
-                          const choices = qForm.choices!.map((c, i) => ({ ...c, isCorrect: i === idx }));
-                          setQForm((p) => ({ ...p, choices }));
-                        } else {
-                          setChoice(idx, 'isCorrect', !choice.isCorrect);
-                        }
-                      }}
-                      className={`flex items-center justify-center w-12 h-12 rounded-lg shrink-0 transition-all duration-300 ${isChecked ? 'bg-sky text-white shadow-md scale-105' : 'bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-navy cursor-pointer'}`}
-                      title={isChecked ? 'Marquer comme incorrecte' : 'Marquer comme correcte'}
-                    >
-                      {qForm.type === 'MULTIPLE_CHOICE' ? (
-                        isChecked ? <CheckSquare size={24} /> : <Square size={24} />
-                      ) : (
-                        isChecked ? <CheckCircle2 size={24} /> : <Circle size={24} />
-                      )}
-                    </button>
-                    
-                    <input 
-                      className={`flex-1 h-12 px-3 border-none shadow-none focus:ring-0 bg-transparent text-base outline-none transition-colors ${isChecked ? 'font-bold text-navy' : 'font-medium text-slate-700 focus:text-navy'}`}
+                    {/* Lettre */}
+                    <div style={{
+                      width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 13, fontWeight: 900,
+                      background: isCorrect ? '#16A34A' : '#EBF2F8',
+                      color: isCorrect ? '#fff' : '#6B9AB8',
+                      transition: 'all 0.18s',
+                    }}>
+                      {letter}
+                    </div>
+
+                    {/* Input texte */}
+                    <input
                       value={choice.label || ''}
                       onChange={(e) => setChoice(idx, 'label', e.target.value)}
-                      placeholder={`Texte de l'option ${String.fromCharCode(65 + idx)}`} 
+                      placeholder={`Option ${letter}...`}
+                      style={{
+                        flex: 1, height: 36, padding: '0 10px',
+                        border: 'none', background: 'transparent', outline: 'none',
+                        fontSize: 14, fontFamily: 'inherit',
+                        fontWeight: isCorrect ? 700 : 500,
+                        color: isCorrect ? '#166534' : '#053F5C',
+                      }}
                     />
 
+                    {/* Checkbox / Radio cliquable */}
+                    <button
+                      type="button"
+                      onClick={handleToggle}
+                      title={isCorrect ? 'Marquer comme incorrecte' : 'Marquer comme correcte'}
+                      style={{
+                        width: 36, height: 36, borderRadius: qForm.type === 'MULTIPLE_CHOICE' ? 8 : '50%',
+                        flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        border: `2.5px solid ${isCorrect ? '#16A34A' : '#C3D9E8'}`,
+                        background: isCorrect ? '#16A34A' : '#fff',
+                        cursor: 'pointer', transition: 'all 0.18s',
+                        boxShadow: isCorrect ? '0 2px 8px rgba(22,163,74,0.3)' : 'none',
+                      }}
+                    >
+                      {isCorrect && (
+                        <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                          <path d="M1.5 6L5.5 10L14.5 1.5" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
+                    </button>
+
+                    {/* Supprimer */}
                     {(qForm.choices ?? []).length > 2 && (
                       <button
                         type="button"
                         onClick={() => removeChoice(idx)}
-                        className="w-10 h-10 flex items-center justify-center rounded-lg text-rose-400 bg-rose-50 hover:bg-rose-500 hover:text-white transition-all opacity-0 group-hover/choice:opacity-100 focus:opacity-100 shrink-0 mr-1 shadow-sm"
                         title="Supprimer cette option"
+                        style={{
+                          width: 32, height: 32, borderRadius: 8, flexShrink: 0,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          border: '1px solid #FECDD3', background: '#FFF1F2',
+                          color: '#E11D48', cursor: 'pointer', transition: 'all 0.18s',
+                        }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#E11D48'; (e.currentTarget as HTMLButtonElement).style.color = '#fff'; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = '#FFF1F2'; (e.currentTarget as HTMLButtonElement).style.color = '#E11D48'; }}
                       >
-                        <Trash2 size={18} />
+                        <Trash2 size={14} />
                       </button>
                     )}
                   </div>
                 );
               })}
-              
-              <button
-                type="button"
-                onClick={addChoice}
-                className="flex items-center justify-center gap-2 mt-3 py-3.5 rounded-xl border-2 border-dashed border-slate-300 text-slate-500 hover:text-sky-600 hover:border-sky-400 hover:bg-sky-50 transition-all font-bold text-sm bg-white"
-              >
-                <Plus size={18} /> Ajouter une option supplémentaire
-              </button>
             </div>
+
+            {/* Ajouter option */}
+            <button
+              type="button"
+              onClick={addChoice}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                width: '100%', padding: '10px', borderRadius: 10,
+                border: '2px dashed #C3D9E8', background: '#fff',
+                color: '#6B9AB8', fontSize: 13, fontWeight: 700,
+                cursor: 'pointer', transition: 'all 0.18s', fontFamily: 'inherit',
+                marginTop: 2,
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#429EBD';
+                (e.currentTarget as HTMLButtonElement).style.color = '#429EBD';
+                (e.currentTarget as HTMLButtonElement).style.background = '#EBF5FB';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = '#C3D9E8';
+                (e.currentTarget as HTMLButtonElement).style.color = '#6B9AB8';
+                (e.currentTarget as HTMLButtonElement).style.background = '#fff';
+              }}
+            >
+              <Plus size={16} /> Ajouter une option
+            </button>
           </div>
         )}
 
+        {/* ── Vrai / Faux ── */}
         {qForm.type === 'TRUE_FALSE' && (
-          <div className="bg-slate-50/80 p-6 rounded-2xl border border-slate-200 space-y-5">
-            <label className="text-base font-bold text-navy flex items-center gap-2">
-              <CheckCircle2 size={20} className="text-sky" />
-              Quelle est l'affirmation correcte ?
-            </label>
-            <div className="flex gap-5">
-              {['Vrai', 'Faux'].map((opt) => {
+          <div style={{
+            background: '#F8FBFD', borderRadius: 14,
+            border: '1.5px solid #DDE8F0', padding: '16px 18px',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <CheckCircle2 size={16} color="#429EBD" />
+              <span style={{ fontSize: 13, fontWeight: 800, color: '#053F5C' }}>Quelle est l'affirmation correcte ?</span>
+            </div>
+            <div style={{ display: 'flex', gap: 12 }}>
+              {(['Vrai', 'Faux'] as const).map((opt) => {
                 const isCorrect = (opt === 'Vrai' && qForm.choices?.[0]?.isCorrect) || (opt === 'Faux' && qForm.choices?.[1]?.isCorrect);
                 return (
-                  <button 
-                    key={opt} 
-                    type="button" 
-                    onClick={() => setQForm((p) => ({ 
-                      ...p, 
-                      choices: [{ label: 'Vrai', isCorrect: opt === 'Vrai' }, { label: 'Faux', isCorrect: opt === 'Faux' }] 
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => setQForm((p) => ({
+                      ...p,
+                      choices: [{ label: 'Vrai', isCorrect: opt === 'Vrai' }, { label: 'Faux', isCorrect: opt === 'Faux' }],
                     }))}
-                    className={`flex-1 py-5 px-6 rounded-xl border-2 font-black text-xl transition-all flex items-center justify-center gap-3 ${
-                      isCorrect 
-                        ? 'border-sky bg-sky/10 text-sky shadow-lg scale-[1.02]' 
-                        : 'border-slate-200 bg-white text-slate-400 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-600'
-                    }`}
+                    style={{
+                      flex: 1, padding: '16px 12px', borderRadius: 12,
+                      border: `2.5px solid ${isCorrect ? (opt === 'Vrai' ? '#16A34A' : '#E11D48') : '#DDE8F0'}`,
+                      background: isCorrect ? (opt === 'Vrai' ? '#F0FDF4' : '#FFF1F2') : '#fff',
+                      color: isCorrect ? (opt === 'Vrai' ? '#16A34A' : '#E11D48') : '#6B9AB8',
+                      fontWeight: 900, fontSize: 18, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                      transition: 'all 0.2s', fontFamily: 'inherit',
+                      boxShadow: isCorrect ? `0 4px 14px ${opt === 'Vrai' ? 'rgba(22,163,74,0.18)' : 'rgba(225,29,72,0.18)'}` : '0 1px 3px rgba(5,63,92,0.05)',
+                      transform: isCorrect ? 'scale(1.02)' : 'scale(1)',
+                    }}
                   >
-                    {opt === 'Vrai' ? <CheckCircle2 size={28} className={isCorrect ? 'text-sky' : 'text-emerald-500 opacity-50'} /> : <AlertCircle size={28} className={isCorrect ? 'text-sky' : 'text-rose-500 opacity-50'} />}
+                    {opt === 'Vrai' ? (
+                      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                        <circle cx="11" cy="11" r="10" fill={isCorrect ? '#16A34A' : '#DDE8F0'} />
+                        <path d="M6 11.5L9.5 15L16 8" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    ) : (
+                      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                        <circle cx="11" cy="11" r="10" fill={isCorrect ? '#E11D48' : '#DDE8F0'} />
+                        <path d="M7.5 7.5L14.5 14.5M14.5 7.5L7.5 14.5" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/>
+                      </svg>
+                    )}
                     {opt}
                   </button>
                 );
@@ -216,30 +398,80 @@ export default function QuestionForm({
           </div>
         )}
 
-        {/* Actions */}
-        <div className="flex gap-4 pt-6 border-t border-slate-200 mt-2">
-          {editingQIdx !== null && (
-            <button 
-              type="button" 
-              onClick={onCancel} 
-              className="px-6 py-4 rounded-xl border-2 border-slate-200 text-slate-600 font-bold hover:bg-slate-50 hover:border-slate-300 hover:text-navy transition-all"
-            >
-              Annuler les modifications
-            </button>
-          )}
-          <button 
-            type="button" 
-            onClick={onSave} 
-            disabled={savingQ || !(qForm.statement || '').trim()}
-            className="flex-1 py-4 px-6 rounded-xl bg-navy text-white font-bold text-base hover:bg-sky-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-3"
+        {/* ── Question texte (info) ── */}
+        {qForm.type === 'TEXT' && (
+          <div style={{
+            background: '#FEF9EC', borderRadius: 14,
+            border: '1.5px solid #FBD98A', padding: '14px 18px',
+            display: 'flex', alignItems: 'flex-start', gap: 12,
+          }}>
+            <AlignLeft size={18} color="#D9930F" style={{ flexShrink: 0, marginTop: 1 }} />
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: '#8C5D07', marginBottom: 4 }}>Question à réponse libre</div>
+              <p style={{ fontSize: 12.5, color: '#A0620A', margin: 0, lineHeight: 1.5 }}>
+                L'étudiant saisira sa réponse en texte libre. La correction sera effectuée manuellement par le professeur.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Footer fixe — Bouton toujours visible ── */}
+      <div style={{
+        padding: '14px 24px',
+        borderTop: '1.5px solid #EBF2F8',
+        background: '#FAFCFE',
+        display: 'flex', gap: 10,
+        flexShrink: 0,
+      }}>
+        {isEditing && (
+          <button
+            type="button"
+            onClick={onCancel}
+            style={{
+              padding: '11px 18px', borderRadius: 10,
+              border: '2px solid #DDE8F0', background: '#fff',
+              color: '#6B9AB8', fontWeight: 700, fontSize: 13,
+              cursor: 'pointer', fontFamily: 'inherit',
+              transition: 'all 0.15s', whiteSpace: 'nowrap',
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#429EBD'; (e.currentTarget as HTMLButtonElement).style.color = '#053F5C'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.borderColor = '#DDE8F0'; (e.currentTarget as HTMLButtonElement).style.color = '#6B9AB8'; }}
           >
-            {savingQ ? (
-              <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <><Save size={22} /> {editingQIdx !== null ? 'Enregistrer les modifications' : 'Ajouter cette question'}</>
-            )}
+            Annuler
           </button>
-        </div>
+        )}
+
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={savingQ || !canSave}
+          style={{
+            flex: 1, padding: '12px 20px', borderRadius: 10,
+            border: 'none',
+            background: !canSave
+              ? '#C3D9E8'
+              : isEditing
+              ? 'linear-gradient(135deg, #F7AD19, #D9930F)'
+              : 'linear-gradient(135deg, #429EBD, #053F5C)',
+            color: '#fff',
+            fontWeight: 800, fontSize: 14.5,
+            cursor: !canSave ? 'not-allowed' : 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            fontFamily: 'inherit', transition: 'all 0.2s',
+            boxShadow: canSave ? '0 4px 14px rgba(5,63,92,0.2)' : 'none',
+            opacity: savingQ ? 0.75 : 1,
+          }}
+        >
+          {savingQ ? (
+            <div style={{ width: 20, height: 20, border: '3px solid rgba(255,255,255,0.35)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+          ) : (
+            <>
+              <Save size={18} />
+              {isEditing ? 'Enregistrer les modifications' : 'Ajouter cette question'}
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

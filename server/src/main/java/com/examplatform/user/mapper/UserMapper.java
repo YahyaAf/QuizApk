@@ -29,6 +29,8 @@ public class UserMapper {
                                         .id(badge.getId())
                                         .name(badge.getName())
                                         .description(badge.getDescription())
+                                        .iconUrl(badge.getIconUrl())
+                                        .color(badge.getColor())
                                         .build())
                                 .collect(Collectors.toSet()))
                 .build();

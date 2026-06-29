@@ -76,8 +76,11 @@ public class SubmissionService {
                 return submissionMapper.toDto(abandoned);
             }
             
-            log.info("Student {} abandoned submission {}. Auto-submitting to consume the attempt.", email, abandoned.getId());
-            autoSubmit(abandoned);
+            // Delete the abandoned session without submitting it:
+            // A tentative is only consumed when the exam is explicitly submitted (submitTime IS NOT NULL).
+            log.info("Student {} had an abandoned session {}. Deleting it to allow a fresh attempt.", email, abandoned.getId());
+            submissionRepository.delete(abandoned);
+            submissionRepository.flush();
         }
 
         long attempts = submissionRepository.countByStudentIdAndExamId(student.getId(), exam.getId());

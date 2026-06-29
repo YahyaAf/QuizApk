@@ -55,6 +55,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Void>> handleGeneralException(Exception ex) {
         ex.printStackTrace();
+        try {
+            java.io.PrintWriter pw = new java.io.PrintWriter(new java.io.FileWriter("error.log", true));
+            ex.printStackTrace(pw);
+            pw.close();
+        } catch (Exception e) {}
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ApiResponse.error("An unexpected error occurred: " + ex.getMessage()));

@@ -11,4 +11,6 @@ public class BadgeDto {
     private Long id;
     private String name;
     private String description;
+    private String iconUrl;
+    private String color;
 }

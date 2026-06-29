@@ -5,9 +5,12 @@ export interface ExamItem {
   durationMinutes: number;
   availableFrom: string;
   availableUntil: string;
+  scheduledStartTime?: string;
   maxAttempts: number;
   published: boolean;
   totalMarks: number;
+  moduleId?: number;
+  groupId?: number;
   questions?: QuestionItem[];
 }
 

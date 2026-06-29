@@ -14,7 +14,8 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
 
     List<Submission> findByStudentEmailOrderByStartTimeDesc(String email);
 
-    long countByStudentIdAndExamId(Long studentId, Long examId);
+    @Query("SELECT COUNT(s) FROM Submission s WHERE s.student.id = :studentId AND s.exam.id = :examId AND s.submitTime IS NOT NULL")
+    long countByStudentIdAndExamId(@Param("studentId") Long studentId, @Param("examId") Long examId);
 
     @Query("SELECT s FROM Submission s LEFT JOIN FETCH s.answers a LEFT JOIN FETCH a.selectedChoices WHERE s.id = :id")
     Optional<Submission> findByIdWithAnswersAndChoices(@Param("id") Long id);

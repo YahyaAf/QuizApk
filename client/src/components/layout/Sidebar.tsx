@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FileText, CheckCircle2, BarChart3, LogOut,
   User, Trophy, BookOpen, Users, Shield, PenSquare, BarChart2,
-  Settings
+  Settings, Award
 } from 'lucide-react';
 import { useAuthStore, isAdmin, isTeacher, getRoleLabel } from '../../store/authStore';
 
@@ -27,6 +27,7 @@ const NAV_ITEMS: NavItem[] = [
   { name: 'Mes Examens',       path: '/teacher/exams',          icon: BookOpen,        roles: ['ROLE_TEACHER'] },
   { name: 'Correction manuelle', path: '/teacher/grading',      icon: PenSquare,       roles: ['ROLE_TEACHER'] },
   { name: 'Résultats',         path: '/teacher/results',        icon: CheckCircle2,    roles: ['ROLE_TEACHER'] },
+  { name: 'Gestion des Badges',path: '/teacher/badges',         icon: Award,           roles: ['ROLE_TEACHER'] },
 
   // ── Admin ────────────────────────────────────────────────
   { name: 'Tableau de bord',   path: '/admin',                  icon: LayoutDashboard, roles: ['ROLE_ADMIN'], section: 'Administration' },

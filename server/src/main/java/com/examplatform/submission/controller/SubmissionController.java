@@ -26,7 +26,9 @@ public class SubmissionController {
     @PreAuthorize("hasRole('STUDENT')")
     @Operation(summary = "Start a new exam session (Student only)")
     public ApiResponse<SubmissionDto> startExam(Principal principal, @PathVariable Long examId) {
-        return ApiResponse.success(submissionService.startExam(examId, principal.getName()), "Exam session started. Good luck!");
+        synchronized (principal.getName().intern()) {
+            return ApiResponse.success(submissionService.startExam(examId, principal.getName()), "Exam session started. Good luck!");
+        }
     }
 
     @PutMapping("/{submissionId}/save")
@@ -37,7 +39,9 @@ public class SubmissionController {
             @PathVariable Long submissionId,
             @Valid @RequestBody SubmitExamRequest request
     ) {
-        return ApiResponse.success(submissionService.saveAnswers(submissionId, request, principal.getName()), "Answers saved successfully");
+        synchronized (principal.getName().intern()) {
+            return ApiResponse.success(submissionService.saveAnswers(submissionId, request, principal.getName()), "Answers saved successfully");
+        }
     }
 
     @PutMapping("/{submissionId}/submit")
@@ -48,7 +52,9 @@ public class SubmissionController {
             @PathVariable Long submissionId,
             @Valid @RequestBody SubmitExamRequest request
     ) {
-        return ApiResponse.success(submissionService.submitExam(submissionId, request, principal.getName()), "Exam submitted and corrected successfully");
+        synchronized (principal.getName().intern()) {
+            return ApiResponse.success(submissionService.submitExam(submissionId, request, principal.getName()), "Exam submitted and corrected successfully");
+        }
     }
 
     @PostMapping("/{submissionId}/events")

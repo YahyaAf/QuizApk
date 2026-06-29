@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import { User, Lock, Award, Camera, CheckCircle2, Shield } from 'lucide-react';
-import { FaBullseye, FaStar, FaFire, FaTrophy, FaBolt, FaMedal } from 'react-icons/fa';
+import { 
+  User, Lock, Camera, CheckCircle2, 
+  Trophy, Star, Crown, Zap, Flame, Shield, Medal, Target, 
+  Award, TrendingUp, Sparkles, Brain 
+} from 'lucide-react';
+import { FaMedal } from 'react-icons/fa';
 import { useAuthStore, getRoleLabel } from '../../store/authStore';
 import { userService } from '../../services/dashboardService';
 import toast from 'react-hot-toast';
 
-const BADGE_ICONS: Record<string, React.ReactNode> = {
-  'first_exam': <FaBullseye color="#E53E3E" />,
-  'perfect_score': <FaStar color="#D69E2E" />,
-  'streak_7': <FaFire color="#DD6B20" />,
-  'top_student': <FaTrophy color="#D69E2E" />,
-  'fast_solver': <FaBolt color="#3182CE" />,
+const DYNAMIC_ICONS: Record<string, React.ElementType> = {
+  Trophy, Star, Crown, Zap, Flame, Shield, Medal, Target, 
+  Award, TrendingUp, Sparkles, Brain
 };
 
 export default function ProfilePage() {
@@ -208,15 +209,21 @@ export default function ProfilePage() {
               </div>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 16 }}>
-                {user?.badges?.map((badge) => (
-                  <div key={badge.id} className="card" style={{ padding: 20, textAlign: 'center' }}>
-                    <div style={{ fontSize: 36, marginBottom: 8 }}>
-                      {BADGE_ICONS[badge.name] ?? <FaMedal color="#718096" />}
+                {user?.badges?.map((badge) => {
+                  const Icon = DYNAMIC_ICONS[badge.iconUrl] || FaMedal;
+                  const color = badge.color || '#718096';
+                  return (
+                    <div key={badge.id} className="card" style={{ padding: 20, textAlign: 'center' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
+                        <div style={{ width: 48, height: 48, borderRadius: '50%', background: `${color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: color }}>
+                          <Icon size={24} />
+                        </div>
+                      </div>
+                      <div style={{ fontWeight: 800, color: '#053F5C', fontSize: 14, marginBottom: 4 }}>{badge.name}</div>
+                      <div style={{ color: '#6B9AB8', fontSize: 12 }}>{badge.description}</div>
                     </div>
-                    <div style={{ fontWeight: 800, color: '#053F5C', fontSize: 14, marginBottom: 4 }}>{badge.name}</div>
-                    <div style={{ color: '#6B9AB8', fontSize: 12 }}>{badge.description}</div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
